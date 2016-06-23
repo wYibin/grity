@@ -1,2 +1,2 @@
 # grity
-a Flask powered blog aplication
+a Flask powered blog application
