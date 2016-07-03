@@ -26,4 +26,11 @@
    <input type=text class="input" name=b> =
    <span id=result>?<span>
 <p><a href="#" id=calculate>calculate server side</a>
+
+Hello,
+{% if current_user.is_authenticated %}
+{{ current_user.username }}
+{% else %}
+Stranger
+{% endif %}!
 {% endblock %}
