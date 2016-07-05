@@ -4,7 +4,7 @@
 
 {% block head %}
   {{ super() }}
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='style.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles.css', _external=True) }}">
 {% endblock %}
 
 {% block navbar %}
@@ -26,6 +26,9 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if current_user.is_authenticated %}
+          {% if current_user.is_administrator %}
+          <li><a href="{{ url_for('main.post') }}">Post</a></li>
+          {% endif %}
         <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
         {% else %}
         <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>

@@ -1,0 +1,13 @@
+Dear {{ user.username }},
+
+Welcome to Grity!
+
+To confirm your account please click on the following link:
+
+{{ url_for('auth.confirm', token=token, _external=True) }}
+
+Sincerely,
+
+The Grity test_password_salts_are_random
+
+Note: replies to this email address are not monitored.
