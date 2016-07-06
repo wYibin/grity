@@ -1,0 +1,31 @@
+<ul class="posts list-unstyled">
+  {% for post in posts %}
+  <li class="post">
+    <div>
+      <h2><a href="{{ url_for('.post', id=post.id) }}">{{ post.title }}</a></h2>
+    </div>
+    {% if current_user.is_administrator == True and request.endpoint == 'main.post' %}
+    <div>
+      <a href="{{ url_for('.edit', id=post.id) }}"><span class="label label-danger">
+        Edit</span></a>
+    </div>
+    {% endif %}
+    <div>
+      <p>{{ post.timestamp }}</p>
+    </div>
+    {% if request.endpoint == 'main.post' or request.endpoint == 'main.index'%}
+    <div>
+      <p>{{ post.summary }}</p>
+    </div>
+    {% endif %}
+    {% if request.endpoint == 'main.post' %}
+    <div class="post-content">
+      {% if post.content_html %}
+        {{ post.content_html | safe }}
+      {% else %}
+        {{ post.content }}
+      {% endif %}
+    <div>
+    {% endif %}
+  {% endfor %}
+</ul>

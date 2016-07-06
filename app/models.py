@@ -6,6 +6,8 @@ from . import login_manager
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from datetime import datetime
+from markdown import markdown
+import bleach
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -64,3 +66,40 @@ class Post(db.Model):
     content = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    content_html = db.Column(db.Text)
+    comments = db.relationship('Comment', backref='post', lazy='dynamic')
+
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed, randint
+        import forgery_py
+
+        seed()
+        for i in range(count):
+            p = Post(title=forgery_py.lorem_ipsum.title(),
+                summary=forgery_py.lorem_ipsum.sentences(randint(1,2)),
+                content=forgery_py.lorem_ipsum.sentences(randint(5,8)),
+                timestamp=forgery_py.date.date(True),
+                author_id=User.query.filter_by(is_administrator=True).first().id
+                )
+            db.session.add(p)
+            db.session.commit()
+
+    @staticmethod
+    def on_changed_content(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em',
+            'i', 'li', 'ol', 'pre', 'strong', 'ul', 'h1', 'h2', 'h3', 'h4', 'p']
+        target.content_html = bleach.linkify(bleach.clean(markdown(value,
+            output_format='html'), tags=allowed_tags, strip=True))
+
+db.event.listen(Post.content, 'set', Post.on_changed_content)
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True)
+    email = db.Column(db.String(64), unique=True, index=True)
+    content = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    disabled = db.Column(db.Boolean, default=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))

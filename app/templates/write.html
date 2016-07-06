@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+  <h1>Write Post</h1>
+</div>
+{{ wtf.quick_form(form) }}
+{% endblock %}

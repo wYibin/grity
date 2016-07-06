@@ -4,6 +4,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+    GRITY_POSTS_PER_PAGE = 10
     GRITY_MAIL_SUBJECT_PREFIX = '[Grity]'
     GRITY_MAIL_SENDER = '378339252@qq.com'
     GRITY_ADMIN = os.environ.get('GRITY_ADMIN')
