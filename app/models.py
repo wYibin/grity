@@ -3,11 +3,12 @@ from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from . import login_manager
-from flask import current_app
+from flask import current_app, url_for
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from datetime import datetime
 from markdown import markdown
 import bleach
+from .exceptions import ValidationError
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -91,6 +92,29 @@ class Post(db.Model):
             'i', 'li', 'ol', 'pre', 'strong', 'ul', 'h1', 'h2', 'h3', 'h4', 'p']
         target.content_html = bleach.linkify(bleach.clean(markdown(value,
             output_format='html'), tags=allowed_tags, strip=True))
+
+    def to_json(self):
+        json_post = {
+            'url': url_for('api.get_post', id=self.id, _external=True),
+            'title': self.title,
+            'summary': self.summary,
+            'content': self.content,
+            'content_html': self.content_html,
+        }
+        return json_post
+
+    @staticmethod
+    def from_json(json_post):
+        title = json_post.get('title')
+        summary = json_post.get('summary')
+        content = json_post.get('content')
+        if title is None or title == '':
+            raise ValidationError('post does not have a title')
+        if summary is None or summary == '':
+            raise ValidationError('post does not have a summary')
+        if content is None or content == '':
+            raise ValidationError('post dose not have a content')
+        return Post(title=title, summary=summary, content=content)
 
 db.event.listen(Post.content, 'set', Post.on_changed_content)
 
